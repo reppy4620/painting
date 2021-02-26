@@ -1,0 +1,12 @@
+defaults:
+  - env: default_env
+  - logger: wandb_logger
+  - method: baseline
+  - trainer: tpu_trainer
+
+project: painting
+seed: 42
+
+hydra:
+  run:
+    dir: ${env.save_dir}

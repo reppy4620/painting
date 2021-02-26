@@ -1,0 +1,3 @@
+# @package _group_
+tpu_cores: 8
+max_epochs: ${method.num_epochs}
