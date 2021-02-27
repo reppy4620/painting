@@ -32,8 +32,7 @@ def main(cfg):
 
     trainer = pl.Trainer(
         logger=wandb_logger,
-        checkpoint_callback=model_checkpoint,
-        callbacks=[image_callback],
+        callbacks=[model_checkpoint, image_callback],
         deterministic=True,
         **cfg.trainer
     )
