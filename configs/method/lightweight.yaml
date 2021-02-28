@@ -2,7 +2,8 @@ name: lightweight
 num_epochs: 2000
 
 data:
-  dataset: normal
+  dataset:
+    _target_: data_modules.normal.NormalDataset
   data_dir: ${env.data_dir}
   resolution: ${method.model.resolution}
   train_ratio: 0.95

@@ -1,37 +1,36 @@
 import pathlib
+from hydra.utils import instantiate
 
 import pytorch_lightning as pl
 import torch.nn as nn
 import torchvision.transforms as T
 from torch.utils.data.dataloader import DataLoader
 
-from .get_dataset import get_dataset
-
 
 class ImageDataModule(pl.LightningDataModule):
 
     def __init__(self, cfg):
         super().__init__()
-        self.dataset_type = cfg.dataset
+        self.cfg = cfg
         self.data_dir = pathlib.Path(cfg.data_dir)
-        self.resolution = cfg.resolution
-        self.train_ratio = cfg.train_ratio
-        self.batch_size = cfg.batch_size
 
         self.train_x = None
         self.valid_x = None
 
     def setup(self, stage=None):
-        Dataset = get_dataset(self.dataset_type)
         img_paths = list(self.data_dir.glob('**/*.*'))
-        train_length = int(len(img_paths) * self.train_ratio)
-        self.train_x = Dataset(img_paths[:train_length], self.train_transforms())
-        self.valid_x = Dataset(img_paths[train_length:], self.val_transforms())
+        train_length = int(len(img_paths) * self.cfg.train_ratio)
+        self.train_x = instantiate(self.cfg.dataset,
+                                   img_paths=img_paths[:train_length],
+                                   transform=self.train_transforms())
+        self.valid_x = instantiate(self.cfg.dataset,
+                                   img_paths=img_paths[train_length:],
+                                   transform=self.val_transforms())
 
     def train_dataloader(self):
         return DataLoader(
             self.train_x,
-            batch_size=self.batch_size,
+            batch_size=self.cfg.batch_size,
             shuffle=True,
             pin_memory=True,
             num_workers=8
@@ -40,7 +39,7 @@ class ImageDataModule(pl.LightningDataModule):
     def val_dataloader(self):
         return DataLoader(
             self.valid_x,
-            batch_size=self.batch_size,
+            batch_size=self.cfg.batch_size,
             shuffle=False,
             pin_memory=True,
             num_workers=8
@@ -48,12 +47,12 @@ class ImageDataModule(pl.LightningDataModule):
 
     def train_transforms(self):
         return nn.Sequential(
-            T.RandomCrop((self.resolution, self.resolution)),
+            T.RandomCrop((self.cfg.resolution, self.cfg.resolution)),
             T.RandomHorizontalFlip(),
             T.RandomVerticalFlip(),
         )
 
     def val_transforms(self):
         return nn.Sequential(
-            T.RandomCrop((self.resolution, self.resolution))
+            T.RandomCrop((self.cfg.resolution, self.cfg.resolution))
         )
