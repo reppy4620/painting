@@ -8,7 +8,7 @@ from ..common import make_channels
 class Generator(nn.Module):
     def __init__(self, resolution):
         super().__init__()
-        channels = make_channels(math.log2(resolution / 16))
+        channels = make_channels(math.log2(resolution / 8))
         self.in_layer = nn.Sequential(
             nn.Conv2d(1, channels[0], 3, 1, 1, bias=False),
             nn.BatchNorm2d(channels[0]),
@@ -63,10 +63,8 @@ class Generator(nn.Module):
     @staticmethod
     def _build_up_layer(in_c, out_c):
         return nn.Sequential(
-            nn.ConvTranspose2d(in_c, out_c*2, 4, 2, 1, bias=False),
-            nn.BatchNorm2d(out_c*2),
-            nn.GLU(dim=1),
-            nn.Conv2d(out_c, out_c*2, 3, 1, 1, bias=False),
+            nn.UpsamplingNearest2d(scale_factor=2),
+            nn.Conv2d(in_c, out_c*2, 3, 1, 1, bias=False),
             nn.BatchNorm2d(out_c*2),
             nn.GLU(dim=1)
         )

@@ -10,7 +10,7 @@ class Generator(nn.Module):
         super().__init__()
         channels = make_channels(int(math.log2(resolution / 8)))
         self.in_layer = nn.Sequential(
-            nn.Conv2d(3, channels[0], 3, 1, 1, bias=False),
+            nn.Conv2d(1, channels[0], 3, 1, 1, bias=False),
             nn.BatchNorm2d(channels[0]),
             nn.LeakyReLU(0.2, inplace=True)
         )

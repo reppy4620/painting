@@ -6,6 +6,7 @@ import torchvision.transforms as T
 from torch.utils.data.dataloader import DataLoader
 
 from .get_dataset import get_dataset
+from .utils import OneOf
 
 
 class ImageDataModule(pl.LightningDataModule):
@@ -34,7 +35,7 @@ class ImageDataModule(pl.LightningDataModule):
             batch_size=self.batch_size,
             shuffle=True,
             pin_memory=True,
-            # num_workers=8
+            num_workers=8
         )
 
     def val_dataloader(self):
@@ -43,13 +44,16 @@ class ImageDataModule(pl.LightningDataModule):
             batch_size=self.batch_size,
             shuffle=False,
             pin_memory=True,
-            # num_workers=8
+            num_workers=8
         )
 
     def train_transforms(self):
         return nn.Sequential(
-            T.RandomResizedCrop((self.resolution, self.resolution)),
-            T.RandomApply([T.ColorJitter()]),
+            OneOf(
+                T.RandomResizedCrop((self.resolution, self.resolution)),
+                T.Resize((self.resolution, self.resolution))
+            ),
+            T.RandomApply([T.ColorJitter(brightness=0.2, contrast=0.5, saturation=0.5)], p=0.1),
             T.RandomHorizontalFlip(),
             T.RandomVerticalFlip(),
         )

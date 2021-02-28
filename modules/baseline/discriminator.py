@@ -7,7 +7,7 @@ from ..common import make_channels
 class Discriminator(nn.Module):
     def __init__(self, resolution):
         super().__init__()
-        channels = make_channels(math.log2(resolution / 8)-2)
+        channels = make_channels(math.log2(resolution / 8)-1)
         self.in_layer = nn.Sequential(
             nn.Conv2d(3, channels[0], 3, 1, 1, bias=False),
             nn.BatchNorm2d(channels[0]),

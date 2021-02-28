@@ -1,4 +1,3 @@
-# @package _group_
 name: baseline
 num_epochs: 200
 
@@ -7,7 +6,7 @@ data:
   data_dir: ${env.data_dir}
   resolution: ${method.model.resolution}
   train_ratio: 0.95
-  batch_size: 16
+  batch_size: 64
 
 model:
   _target_: modules.baseline.pl_model.BaselineModule
