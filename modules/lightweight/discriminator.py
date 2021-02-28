@@ -6,7 +6,7 @@ import torch.nn.functional as F
 import torchvision.transforms as T
 
 from .layers import DownLayer, UpLayer
-from ..common import make_channels
+from ..common.utils import make_channels
 
 
 class SimpleDecoder(nn.Module):

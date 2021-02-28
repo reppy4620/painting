@@ -4,7 +4,7 @@ from adabelief_pytorch import AdaBelief
 
 from .generator import Generator
 from .discriminator import Discriminator
-from ..common import hinge_loss
+from ..common.loss import HingeGANLoss
 
 
 class LightweightModule(pl.LightningModule):
@@ -13,6 +13,8 @@ class LightweightModule(pl.LightningModule):
         self.G = Generator(resolution)
         self.D = Discriminator(resolution)
         self.automatic_optimization = False
+
+        self.criterion = HingeGANLoss()
 
     def forward(self, sketch):
         return self.G(sketch)
@@ -26,8 +28,8 @@ class LightweightModule(pl.LightningModule):
         fake = self.G(sketch)
         pred_fake = self.D(fake)
 
-        loss_g_gan = -pred_fake.mean()
-        recon_loss_g = F.smooth_l1_loss(fake, color)
+        loss_g_gan = self.criterion.loss_g(pred_fake)
+        recon_loss_g = F.mse_loss(fake, color)
         loss_g = loss_g_gan + 10 * recon_loss_g
 
         opt_g.zero_grad()
@@ -38,7 +40,7 @@ class LightweightModule(pl.LightningModule):
         fake = self.G(sketch)
         pred_fake = self.D(fake)
         pred_real, recon_loss_d = self.D(color, with_recon=True)
-        loss_d = hinge_loss(pred_fake, pred_real) + recon_loss_d
+        loss_d = self.criterion.loss_d(pred_fake, pred_real) + recon_loss_d
 
         opt_d.zero_grad()
         self.manual_backward(loss_d, opt_d)
@@ -53,14 +55,14 @@ class LightweightModule(pl.LightningModule):
         fake = self.G(sketch)
         pred_fake = self.D(fake)
 
-        loss_g_gan = -pred_fake.mean()
+        loss_g_gan = self.criterion.loss_g(pred_fake)
         recon_loss_g = F.mse_loss(fake, color)
         loss_g = loss_g_gan + 10 * recon_loss_g
 
         fake = self.G(sketch)
         pred_fake = self.D(fake)
         pred_real, recon_loss_d = self.D(color, with_recon=True)
-        loss_d = hinge_loss(pred_fake, pred_real) + recon_loss_d
+        loss_d = self.criterion.loss_d(pred_fake, pred_real) + recon_loss_d
 
         val_loss = loss_g + loss_d
 

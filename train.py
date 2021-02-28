@@ -4,7 +4,7 @@ from hydra.utils import instantiate
 from pytorch_lightning.callbacks import ModelCheckpoint
 
 from data_modules import ImageDataModule
-from modules.callback import GenerateImageCallback
+from modules.common.callback import GenerateImageCallback
 
 
 @hydra.main(config_path='configs', config_name='config.yaml')

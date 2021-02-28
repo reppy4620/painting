@@ -1,11 +1,10 @@
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
 import pytorch_lightning as pl
+import torch.nn.functional as F
 from adabelief_pytorch import AdaBelief
 
-from .generator import Generator
 from .discriminator import Discriminator
+from .generator import Generator
+from ..common.loss import BCEWithLogitsGANLoss
 
 
 class BaselineModule(pl.LightningModule):
@@ -15,7 +14,7 @@ class BaselineModule(pl.LightningModule):
         self.D = Discriminator(resolution)
         self.automatic_optimization = False
 
-        self.criterion = nn.BCEWithLogitsLoss()
+        self.criterion = BCEWithLogitsGANLoss()
 
     def forward(self, sketch):
         return self.G(sketch)
@@ -29,7 +28,7 @@ class BaselineModule(pl.LightningModule):
         fake = self.G(sketch)
         pred_fake = self.D(fake)
 
-        loss_g_gan = self.criterion(pred_fake, torch.ones_like(pred_fake))
+        loss_g_gan = self.criterion.loss_g(pred_fake)
         recon_loss = F.mse_loss(fake, color)
         loss_g = loss_g_gan + 10 * recon_loss
 
@@ -41,8 +40,7 @@ class BaselineModule(pl.LightningModule):
         fake = self.G(sketch)
         pred_fake = self.D(fake)
         pred_real = self.D(color)
-        loss_d = self.criterion(pred_fake, torch.zeros_like(pred_fake)) + \
-                 self.criterion(pred_real, torch.ones_like(pred_real))
+        loss_d = self.criterion.loss_d(pred_fake, pred_real)
 
         opt_d.zero_grad()
         self.manual_backward(loss_d, opt_d)
@@ -57,15 +55,14 @@ class BaselineModule(pl.LightningModule):
         fake = self.G(sketch)
         pred_fake = self.D(fake)
 
-        loss_g_gan = -pred_fake.mean()
+        loss_g_gan = self.criterion.loss_g(pred_fake)
         recon_loss = F.mse_loss(fake, color)
         loss_g = loss_g_gan + 10 * recon_loss
 
         fake = self.G(sketch)
         pred_fake = self.D(fake)
         pred_real = self.D(color)
-        loss_d = self.criterion(pred_fake, torch.zeros_like(pred_fake)) + \
-                 self.criterion(pred_real, torch.ones_like(pred_real))
+        loss_d = self.criterion.loss_d(pred_fake, pred_real)
 
         val_loss = loss_g + loss_d
 

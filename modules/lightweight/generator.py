@@ -2,7 +2,8 @@ import math
 import torch.nn as nn
 
 from .layers import DownLayer, UpLayer, SLE
-from ..common import make_channels, Concat
+from ..common.layers import Concat
+from ..common.utils import make_channels
 
 
 class Generator(nn.Module):

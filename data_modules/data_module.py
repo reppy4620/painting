@@ -50,15 +50,14 @@ class ImageDataModule(pl.LightningDataModule):
     def train_transforms(self):
         return nn.Sequential(
             OneOf(
-                T.RandomResizedCrop((self.resolution, self.resolution)),
+                T.RandomCrop((self.resolution, self.resolution)),
                 T.Resize((self.resolution, self.resolution))
             ),
-            T.RandomApply([T.ColorJitter(brightness=0.2, contrast=0.5, saturation=0.5)], p=0.1),
             T.RandomHorizontalFlip(),
             T.RandomVerticalFlip(),
         )
 
     def val_transforms(self):
         return nn.Sequential(
-            T.CenterCrop((self.resolution, self.resolution))
+            T.Resize((self.resolution, self.resolution))
         )

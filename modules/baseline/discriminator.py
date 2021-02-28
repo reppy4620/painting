@@ -1,7 +1,7 @@
 import math
 import torch.nn as nn
 
-from ..common import make_channels
+from ..common.utils import make_channels
 
 
 class Discriminator(nn.Module):

@@ -1,6 +1,6 @@
 import torch.nn as nn
 
-from ..common import BranchAdd
+from ..common.layers import BranchAdd
 
 
 def DownLayer(in_c, out_c):
