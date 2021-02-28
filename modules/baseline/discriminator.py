@@ -7,9 +7,9 @@ from ..common import make_channels
 class Discriminator(nn.Module):
     def __init__(self, resolution):
         super().__init__()
-        channels = make_channels(math.log2(resolution / 8))
+        channels = make_channels(math.log2(resolution / 8)-2)
         self.in_layer = nn.Sequential(
-            nn.Conv2d(3, channels[0], 3, 1, 1),
+            nn.Conv2d(3, channels[0], 3, 1, 1, bias=False),
             nn.BatchNorm2d(channels[0]),
             nn.LeakyReLU(0.1, inplace=True)
         )
@@ -21,18 +21,16 @@ class Discriminator(nn.Module):
         ])
 
         self.out_layer = nn.Sequential(
-            nn.Conv2d(channels[-1], channels[-1], 3, 1, 1),
-            nn.BatchNorm2d(channels[-1]),
-            nn.LeakyReLU(0.1, inplace=True),
-            nn.Conv2d(channels[-1], 1, 4)
+            nn.AdaptiveAvgPool2d(1),
+            nn.Conv2d(channels[-1], 1, 1)
         )
 
     def _build_layer(self, in_c, out_c):
         return nn.Sequential(
-            nn.Conv2d(in_c, out_c, 4, 2, 1),
-            nn.BatchNorm2d(out_c),
+            nn.Conv2d(in_c, in_c, 4, 2, 1, bias=False),
+            nn.BatchNorm2d(in_c),
             nn.LeakyReLU(0.1, inplace=True),
-            nn.Conv2d(out_c, out_c, 3, 1, 1),
+            nn.Conv2d(in_c, out_c, 3, 1, 1, bias=False),
             nn.BatchNorm2d(out_c),
             nn.LeakyReLU(0.1, inplace=True)
         )

@@ -2,7 +2,7 @@ defaults:
   - env: default_env
   - logger: wandb_logger
   - method: baseline
-  - trainer: tpu_trainer
+  - trainer: gpu_trainer
 
 project: painting
 seed: 42
