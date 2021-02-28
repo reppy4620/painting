@@ -1,7 +1,7 @@
 defaults:
   - env: default_env
   - logger: wandb_logger
-  - method: lightweight
+  - method: baseline
   - trainer: gpu_trainer
 
 project: painting
